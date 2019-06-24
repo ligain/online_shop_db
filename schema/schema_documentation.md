@@ -15,7 +15,6 @@ All products in the online shop.
 | `id` | INT | PRIMARY, Not null |   |   |
 | `name` | VARCHAR(100) |  |   | Product name |
 | `manufacturer_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `manufacturer`. |
-| `additional_property_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `additional_property`. |
 | `product_category_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `product_category`. |
 | `amount` | INT |  | `0` | If it equals to 0 product is not in sale |
 
@@ -24,9 +23,8 @@ All products in the online shop.
 
 | Name | Columns | Type | Description |
 | --- | --- | --- | --- |
-| PRIMARY | `id`, `manufacturer_id`, `additional_property_id`, `product_category_id` | PRIMARY |   |
+| PRIMARY | `id`, `manufacturer_id`, `product_category_id` | PRIMARY |   |
 | fk_product_manufacturer1_idx | `manufacturer_id` | INDEX |   |
-| fk_product_additional_property1_idx | `additional_property_id` | INDEX |   |
 | fk_product_product_category1_idx | `product_category_id` | INDEX |   |
 
 
@@ -86,9 +84,9 @@ Table with information of shop’s customers.
 | Column | Data type | Attributes | Default | Description |
 | --- | --- | --- | --- | ---  |
 | `id` | INT | PRIMARY, Not null |   |   |
-| `first_name` | VARCHAR(45) |  |   |   |
-| `second_name` | VARCHAR(45) |  |   |   |
-| `email` | VARCHAR(45) |  |   | @ is mandatory symbol in the field |
+| `first_name` | VARCHAR(100) |  |   |   |
+| `second_name` | VARCHAR(100) |  |   |   |
+| `email` | VARCHAR(100) |  |   | @ is mandatory symbol in the field |
 | `phone` | VARCHAR(45) |  |   | Should be in format: 1-415-1234567 without + sign |
 
 
@@ -111,9 +109,9 @@ Shop's cart. It represents a single order.
 | --- | --- | --- | --- | ---  |
 | `id` | INT | PRIMARY, Not null |   |   |
 | `client_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `client`. |
-| `created` | DATE |  |   | An auto field when a purchase was created |
-| `modified` | DATE |  |   | An auto field when a purchase was modified |
-| `status` | SET |  | `'new'` | Status of purchase. `New` - client just created an order, `paid` - received payment from client, `deliver` - an order is heading to client, `done` - client has received products, `rejected` - client cancelled an order. |
+| `created` | DATETIME |  |   | An auto field when a purchase was created |
+| `modified` | DATETIME |  |   | An auto field when a purchase was modified |
+| `status` | SET |  | `'new'` | Status of purchase. `New` - client just created an order, `paid` - received payment from client, `deliver` - an order is heading to client, `done` - client has received products, `rejected` - client cancelled an order, `error` - an error while processing a payment transaction. |
 | `payment_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `payment`. |
 | `total` | INT |  |   | Sum of all products costs. Value in coins/cents. |
 
@@ -140,37 +138,16 @@ Information of purchase transaction
 | `id` | INT | PRIMARY, Not null |   |   |
 | `status` | ENUM |  | `'pending'` | If status `pending` - client has not paid yet when it's `done` - client pait full amount. |
 | `created` | DATE |  |   | An auto field when a payment was created |
-| `method` | VARCHAR(45) |  |   | Name of payment system. |
 | `transaction_info` | TEXT(1000) |  |   | Transaction status information received from payment system. |
+| `payment_method_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `payment_method`. |
 
 
 ### Indices: 
 
 | Name | Columns | Type | Description |
 | --- | --- | --- | --- |
-| PRIMARY | `id` | PRIMARY |   |
-
-
-## Table: `additional_property`
-
-### Description: 
-
-Additional information of a product
-
-### Columns: 
-
-| Column | Data type | Attributes | Default | Description |
-| --- | --- | --- | --- | ---  |
-| `id` | INT | PRIMARY, Not null |   |   |
-| `year` | SMALLINT |  |   | A year when a product was produced. Example: 2019 |
-| `color` | VARCHAR(45) |  |   | A color of product. Example: _black_ |
-
-
-### Indices: 
-
-| Name | Columns | Type | Description |
-| --- | --- | --- | --- |
-| PRIMARY | `id` | PRIMARY |   |
+| PRIMARY | `id`, `payment_method_id` | PRIMARY |   |
+| fk_payment_payment_method1_idx | `payment_method_id` | INDEX |   |
 
 
 ## Table: `price`
@@ -185,9 +162,10 @@ Price for a product
 | --- | --- | --- | --- | ---  |
 | `id` | INT | PRIMARY, Not null |   |   |
 | `product_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `product`. |
-| `effective_date` | DATETIME |  |   | If it set to `NULL` then price is actual for product otherwise price was effective up to date set in field. |
+| `effective_start_date` | DATETIME |  | `CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` | The beginning date when a price becomes effective. By default when record creates it is equal current datetime. |
+| `effective_end_date` | DATETIME |  |   | The end date when a price gets irrelevant. |
 | `value` | INT |  |   | Value of price in coins/cents |
-| `rebate` | FLOAT |  |   | Discount for a price. Example: 0.21. If value = 3000 cents and rebate = 0.21 then total price = 3000 * 0.21 |
+| `rebate` | INT |  |   | Discount value in percents |
 
 
 ### Indices: 
@@ -211,6 +189,7 @@ Table where purchase, product and price get together
 | `purchase_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `purchase`. |
 | `product_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `product`. |
 | `price_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `price`. |
+| `amount` | INT |  |   |   |
 
 
 ### Indices: 
@@ -221,5 +200,71 @@ Table where purchase, product and price get together
 | fk_purchase_has_product_product1_idx | `product_id` | INDEX |   |
 | fk_purchase_has_product_purchase1_idx | `purchase_id` | INDEX |   |
 | fk_purchase_product_price1_idx | `price_id` | INDEX |   |
+
+
+## Table: `payment_method`
+
+### Description: 
+
+Table of payment methods
+
+### Columns: 
+
+| Column | Data type | Attributes | Default | Description |
+| --- | --- | --- | --- | ---  |
+| `id` | INT | PRIMARY, Not null |   |   |
+| `name` | VARCHAR(45) |  |   | Short name of payment system. |
+
+
+### Indices: 
+
+| Name | Columns | Type | Description |
+| --- | --- | --- | --- |
+| PRIMARY | `id` | PRIMARY |   |
+
+
+## Table: `attribute`
+
+### Description: 
+
+Set of product's attributes 
+
+### Columns: 
+
+| Column | Data type | Attributes | Default | Description |
+| --- | --- | --- | --- | ---  |
+| `id` | INT | PRIMARY, Not null |   |   |
+| `name` | VARCHAR(45) |  |   |   |
+| `value` | VARCHAR(45) |  |   |   |
+
+
+### Indices: 
+
+| Name | Columns | Type | Description |
+| --- | --- | --- | --- |
+| PRIMARY | `id` | PRIMARY |   |
+
+
+## Table: `product_attribute`
+
+### Description: 
+
+
+
+### Columns: 
+
+| Column | Data type | Attributes | Default | Description |
+| --- | --- | --- | --- | ---  |
+| `product_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `product`. |
+| `attribute_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `attribute`. |
+
+
+### Indices: 
+
+| Name | Columns | Type | Description |
+| --- | --- | --- | --- |
+| PRIMARY | `product_id`, `attribute_id` | PRIMARY |   |
+| fk_product_has_attribute_attribute1_idx | `attribute_id` | INDEX |   |
+| fk_product_has_attribute_product1_idx | `product_id` | INDEX |   |
 
 
