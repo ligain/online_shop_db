@@ -137,7 +137,7 @@ Information of purchase transaction
 | --- | --- | --- | --- | ---  |
 | `id` | INT | PRIMARY, Not null |   |   |
 | `status` | ENUM |  | `'pending'` | If status `pending` - client has not paid yet when it's `done` - client pait full amount. |
-| `created` | DATE |  |   | An auto field when a payment was created |
+| `created` | DATETIME |  |   | An auto field when a payment was created |
 | `transaction_info` | TEXT(1000) |  |   | Transaction status information received from payment system. |
 | `payment_method_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `payment_method`. |
 
@@ -235,7 +235,6 @@ Set of product's attributes
 | --- | --- | --- | --- | ---  |
 | `id` | INT | PRIMARY, Not null |   |   |
 | `name` | VARCHAR(45) |  |   |   |
-| `value` | VARCHAR(45) |  |   |   |
 
 
 ### Indices: 
@@ -245,11 +244,34 @@ Set of product's attributes
 | PRIMARY | `id` | PRIMARY |   |
 
 
+## Table: `product_category_attribute`
+
+### Description: 
+
+Attributes related to specified product category.
+
+### Columns: 
+
+| Column | Data type | Attributes | Default | Description |
+| --- | --- | --- | --- | ---  |
+| `product_category_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `product_category`. |
+| `attribute_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `attribute`. |
+
+
+### Indices: 
+
+| Name | Columns | Type | Description |
+| --- | --- | --- | --- |
+| PRIMARY | `product_category_id`, `attribute_id` | PRIMARY |   |
+| fk_product_category_has_attribute_attribute1_idx | `attribute_id` | INDEX |   |
+| fk_product_category_has_attribute_product_category1_idx | `product_category_id` | INDEX |   |
+
+
 ## Table: `product_attribute`
 
 ### Description: 
 
-
+Attributes for product
 
 ### Columns: 
 
@@ -257,6 +279,7 @@ Set of product's attributes
 | --- | --- | --- | --- | ---  |
 | `product_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `product`. |
 | `attribute_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `attribute`. |
+| `value` | VARCHAR(45) |  |   |   |
 
 
 ### Indices: 
@@ -266,5 +289,26 @@ Set of product's attributes
 | PRIMARY | `product_id`, `attribute_id` | PRIMARY |   |
 | fk_product_has_attribute_attribute1_idx | `attribute_id` | INDEX |   |
 | fk_product_has_attribute_product1_idx | `product_id` | INDEX |   |
+
+
+## Table: `attribute_list_value`
+
+### Description: 
+
+
+
+### Columns: 
+
+| Column | Data type | Attributes | Default | Description |
+| --- | --- | --- | --- | ---  |
+| `value` | VARCHAR(45) |  |   |   |
+| `attribute_id` | INT | PRIMARY, Not null |   |  **foreign key** to column `id` on table `attribute`. |
+
+
+### Indices: 
+
+| Name | Columns | Type | Description |
+| --- | --- | --- | --- |
+| PRIMARY | `attribute_id` | PRIMARY |   |
 
 
