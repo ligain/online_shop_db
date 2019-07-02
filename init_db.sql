@@ -76,4 +76,64 @@ CREATE TABLE IF NOT EXISTS public.price (
 	CONSTRAINT fk_price_product1 FOREIGN KEY (product_id) REFERENCES product(id) DEFERRABLE INITIALLY DEFERRED
 );
 
+-- DROP TABLE public.client;
+CREATE TABLE IF NOT EXISTS public.client (
+    id serial NOT NULL,
+    first_name varchar(100),
+    second_name varchar(100),
+    email varchar(100),
+    phone varchar(100),
+    PRIMARY KEY(id)
+);
+
+-- DROP TABLE public.payment_method;
+CREATE TABLE IF NOT EXISTS public.payment_method (
+    id serial NOT NULL,
+    "name" varchar(45),
+    PRIMARY KEY(id)
+);
+
+DROP TYPE IF EXISTS payment_status CASCADE;
+CREATE TYPE payment_status AS ENUM('pending', 'done');
+
+-- DROP TABLE public.payment;
+CREATE TABLE IF NOT EXISTS public.payment (
+	id serial NOT NULL,
+	status payment_status DEFAULT 'pending',
+	created timestamp DEFAULT now(),
+	transaction_info text,
+	payment_method_id int4 NOT NULL,
+	PRIMARY KEY(id),
+	CONSTRAINT fk_payment_payment_method1 FOREIGN KEY (payment_method_id) REFERENCES payment_method(id) DEFERRABLE INITIALLY DEFERRED
+);
+
+DROP TYPE IF EXISTS purchase_status CASCADE;
+CREATE TYPE purchase_status AS ENUM('new', 'paid', 'deliver', 'done', 'error');
+
+-- DROP TABLE public.purchase;
+CREATE TABLE IF NOT EXISTS public.purchase (
+	id serial NOT NULL,
+	client_id int4 NOT NULL,
+	payment_id int4 NOT NULL,
+	created timestamp DEFAULT now(),
+	modified timestamp,
+	status purchase_status DEFAULT 'new',
+	total int4 NOT NULL DEFAULT 0,
+	CHECK (total >= 0),
+	PRIMARY KEY(id),
+	CONSTRAINT fk_purchase_client1 FOREIGN KEY (client_id) REFERENCES client(id) DEFERRABLE INITIALLY DEFERRED,
+	CONSTRAINT fk_purchase_payment1 FOREIGN KEY (payment_id) REFERENCES payment(id) DEFERRABLE INITIALLY DEFERRED
+);
+
+-- DROP TABLE public.purchase_product;
+CREATE TABLE IF NOT EXISTS public.purchase_product (
+	purchase_id int4 NOT NULL,
+	product_id int4 NOT NULL,
+	price_id int4 NOT NULL,
+	amount int4 NOT NULL DEFAULT 0,
+	CHECK (amount >= 0),
+	CONSTRAINT fk_purchase_has_product_purchase1 FOREIGN KEY (purchase_id) REFERENCES purchase(id) DEFERRABLE INITIALLY DEFERRED,
+	CONSTRAINT fk_purchase_has_product_product1 FOREIGN KEY (product_id) REFERENCES product(id) DEFERRABLE INITIALLY DEFERRED,
+	CONSTRAINT fk_purchase_product_price1 FOREIGN KEY (price_id) REFERENCES price(id) DEFERRABLE INITIALLY DEFERRED
+);
 
