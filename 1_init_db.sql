@@ -36,8 +36,10 @@ CREATE TABLE IF NOT EXISTS public.product_category_attribute (
     attribute_id int4 NOT NULL,
     UNIQUE (product_category_id, attribute_id),
     CONSTRAINT fk_product_category_has_attribute_product_category1 FOREIGN KEY (product_category_id) REFERENCES product_category(id) DEFERRABLE INITIALLY DEFERRED,
-    CONSTRAINT fk_product_category_has_attribute_attribute1 FOREIGN KEY (attribute_id) REFERENCES "attribute"(id) DEFERRABLE INITIALLY DEFERRED
+    CONSTRAINT fk_product_category_has_attribute_attribute1 FOREIGN KEY (attribute_id) REFERENCES "attribute"(id) DEFERRABLE INITIALLY deferred
 );
+CREATE INDEX fk_product_category_has_attribute_attribute1_idx ON public.product_category_attribute USING btree (product_category_id);
+CREATE INDEX fk_product_category_has_attribute_product_category1_idx ON public.product_category_attribute USING btree (attribute_id);
 
 -- DROP TABLE public.product;
 CREATE TABLE IF NOT EXISTS public.product (
@@ -51,6 +53,9 @@ CREATE TABLE IF NOT EXISTS public.product (
     CONSTRAINT fk_product_manufacturer1 FOREIGN KEY (manufacturer_id) REFERENCES manufacturer(id) DEFERRABLE INITIALLY DEFERRED,
     CONSTRAINT fk_product_product_category1 FOREIGN KEY (product_category_id) REFERENCES product_category(id) DEFERRABLE INITIALLY DEFERRED
 );
+CREATE INDEX fk_product_manufacturer1_idx ON public.product USING btree (manufacturer_id);
+CREATE INDEX fk_product_product_category1_idx ON public.product USING btree (product_category_id);
+CREATE INDEX name_product_idx ON public.product USING btree (name varchar_pattern_ops);
 
 -- DROP TABLE public.product_attribute;
 CREATE TABLE IF NOT EXISTS public.product_attribute (
@@ -61,6 +66,8 @@ CREATE TABLE IF NOT EXISTS public.product_attribute (
     CONSTRAINT fk_product_has_attribute_product1 FOREIGN KEY (product_id) REFERENCES product(id) DEFERRABLE INITIALLY DEFERRED,
     CONSTRAINT fk_product_has_attribute_attribute1 FOREIGN KEY (attribute_id) REFERENCES "attribute"(id) DEFERRABLE INITIALLY DEFERRED
 );
+CREATE INDEX fk_product_has_attribute_attribute1_idx ON public.product_attribute USING btree (attribute_id);
+CREATE INDEX fk_product_has_attribute_product1_idx ON public.product_attribute USING btree (product_id);
 
 -- DROP TABLE public.price
 CREATE TABLE IF NOT EXISTS public.price (
@@ -75,6 +82,7 @@ CREATE TABLE IF NOT EXISTS public.price (
 	PRIMARY KEY(id),
 	CONSTRAINT fk_price_product1 FOREIGN KEY (product_id) REFERENCES product(id) DEFERRABLE INITIALLY DEFERRED
 );
+CREATE INDEX fk_price_product1_idx ON public.price USING btree (product_id);
 
 -- DROP TABLE public.client;
 CREATE TABLE IF NOT EXISTS public.client (
@@ -85,6 +93,8 @@ CREATE TABLE IF NOT EXISTS public.client (
     phone varchar(100),
     PRIMARY KEY(id)
 );
+CREATE INDEX first_name_client_idx ON public.client USING btree (first_name varchar_pattern_ops);
+CREATE INDEX second_name_client_idx ON public.client USING btree (second_name varchar_pattern_ops);
 
 -- DROP TABLE public.payment_method;
 CREATE TABLE IF NOT EXISTS public.payment_method (
@@ -106,6 +116,7 @@ CREATE TABLE IF NOT EXISTS public.payment (
 	PRIMARY KEY(id),
 	CONSTRAINT fk_payment_payment_method1 FOREIGN KEY (payment_method_id) REFERENCES payment_method(id) DEFERRABLE INITIALLY DEFERRED
 );
+CREATE INDEX fk_payment_payment_method1_idx ON public.payment USING btree (payment_method_id);
 
 DROP TYPE IF EXISTS purchase_status CASCADE;
 CREATE TYPE purchase_status AS ENUM('new', 'paid', 'deliver', 'done', 'error');
@@ -124,6 +135,8 @@ CREATE TABLE IF NOT EXISTS public.purchase (
 	CONSTRAINT fk_purchase_client1 FOREIGN KEY (client_id) REFERENCES client(id) DEFERRABLE INITIALLY DEFERRED,
 	CONSTRAINT fk_purchase_payment1 FOREIGN KEY (payment_id) REFERENCES payment(id) DEFERRABLE INITIALLY DEFERRED
 );
+CREATE INDEX fk_purchase_client1_idx ON public.purchase USING btree (client_id);
+CREATE INDEX fk_purchase_payment1_idx ON public.purchase USING btree (payment_id);
 
 -- DROP TABLE public.purchase_product;
 CREATE TABLE IF NOT EXISTS public.purchase_product (
@@ -136,4 +149,7 @@ CREATE TABLE IF NOT EXISTS public.purchase_product (
 	CONSTRAINT fk_purchase_has_product_product1 FOREIGN KEY (product_id) REFERENCES product(id) DEFERRABLE INITIALLY DEFERRED,
 	CONSTRAINT fk_purchase_product_price1 FOREIGN KEY (price_id) REFERENCES price(id) DEFERRABLE INITIALLY DEFERRED
 );
+CREATE INDEX fk_purchase_has_product_product1_idx ON public.purchase_product USING btree (product_id);
+CREATE INDEX fk_purchase_has_product_purchase1_idx ON public.purchase_product USING btree (purchase_id);
+CREATE INDEX fk_purchase_product_price1_idx ON public.purchase_product USING btree (price_id);
 
