@@ -13,3 +13,4 @@ services:
       - "5433:5432"
     volumes:
     - ./init_db.sql:/docker-entrypoint-initdb.d/1_init_db.sql
+    - ./populate_db.sql:/docker-entrypoint-initdb.d/2_populate_db.sql
