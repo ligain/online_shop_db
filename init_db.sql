@@ -44,12 +44,12 @@ CREATE INDEX fk_product_category_has_attribute_product_category1_idx ON public.p
 -- DROP TABLE public.product;
 CREATE TABLE IF NOT EXISTS public.product (
     id serial NOT NULL,
-    "name" varchar(100) NOT NULL,
+    "name" varchar(100) NOT NULL UNIQUE,
     amount int4 DEFAULT 0,
     manufacturer_id int4 NOT NULL,
     product_category_id int4 NOT NULL,
     PRIMARY KEY (id),
-    CHECK (amount >= 0),
+    CHECK (amount > 0),
     CONSTRAINT fk_product_manufacturer1 FOREIGN KEY (manufacturer_id) REFERENCES manufacturer(id) DEFERRABLE INITIALLY DEFERRED,
     CONSTRAINT fk_product_product_category1 FOREIGN KEY (product_category_id) REFERENCES product_category(id) DEFERRABLE INITIALLY DEFERRED
 );
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS public.client (
     id serial NOT NULL,
     first_name varchar(100),
     second_name varchar(100),
-    email varchar(100),
+    email varchar(100) UNIQUE,
     phone varchar(100),
     PRIMARY KEY(id)
 );
@@ -129,8 +129,8 @@ CREATE TABLE IF NOT EXISTS public.purchase (
 	created timestamp DEFAULT now(),
 	modified timestamp,
 	status purchase_status DEFAULT 'new',
-	total int4 NOT NULL DEFAULT 0,
-	CHECK (total >= 0),
+	total int4,
+	CHECK (total > 0),
 	PRIMARY KEY(id),
 	CONSTRAINT fk_purchase_client1 FOREIGN KEY (client_id) REFERENCES client(id) DEFERRABLE INITIALLY DEFERRED,
 	CONSTRAINT fk_purchase_payment1 FOREIGN KEY (payment_id) REFERENCES payment(id) DEFERRABLE INITIALLY DEFERRED
