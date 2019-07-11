@@ -264,5 +264,30 @@ with payment_id as (
 	) returning purchase_id, price_id, amount
 )
 insert into temp_purchase_product select * from price_ids;
-select * from temp_purchase_product;
+
+with total_price as (
+	select 
+		purchase_id, 
+		round(sum(value * 100 - (value * rebate)) / 100)::int as total
+	from temp_purchase_product 
+	join public.price as p on temp_purchase_product.price_id = p.id 
+	group by purchase_id
+)
+update public.purchase
+set total=(select total from total_price)
+where id=(select purchase_id from total_price);
+
+commit;
+
+
+-- Change price
+begin;
+
+update public.price 
+set effective_end_date=now()
+where product_id = 5 and effective_end_date is null;
+
+insert into public.price (product_id, value) values
+	(5, 6596);
+
 commit;

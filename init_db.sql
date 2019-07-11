@@ -45,11 +45,11 @@ CREATE INDEX fk_product_category_has_attribute_product_category1_idx ON public.p
 CREATE TABLE IF NOT EXISTS public.product (
     id serial NOT NULL,
     "name" varchar(100) NOT NULL UNIQUE,
-    amount int4 DEFAULT 0,
+    amount int4 NOT NULL DEFAULT 0,
     manufacturer_id int4 NOT NULL,
     product_category_id int4 NOT NULL,
     PRIMARY KEY (id),
-    CHECK (amount > 0),
+    CHECK (amount >= 0),
     CONSTRAINT fk_product_manufacturer1 FOREIGN KEY (manufacturer_id) REFERENCES manufacturer(id) DEFERRABLE INITIALLY DEFERRED,
     CONSTRAINT fk_product_product_category1 FOREIGN KEY (product_category_id) REFERENCES product_category(id) DEFERRABLE INITIALLY DEFERRED
 );
