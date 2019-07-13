@@ -264,11 +264,11 @@ with payment_id as (
 	) returning purchase_id, price_id, amount
 )
 insert into temp_purchase_product select * from price_ids;
-
+select * from temp_purchase_product;
 with total_price as (
 	select 
-		purchase_id, 
-		round(sum(value * 100 - (value * rebate)) / 100)::int as total
+		purchase_id,
+		round(sum((value * 100 - (value * rebate)) * amount) / 100)::int as total
 	from temp_purchase_product 
 	join public.price as p on temp_purchase_product.price_id = p.id 
 	group by purchase_id
