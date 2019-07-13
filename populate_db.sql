@@ -278,16 +278,3 @@ set total=(select total from total_price)
 where id=(select purchase_id from total_price);
 
 commit;
-
-
--- Change price
-begin;
-
-update public.price 
-set effective_end_date=now()
-where product_id = 5 and effective_end_date is null;
-
-insert into public.price (product_id, value) values
-	(5, 6596);
-
-commit;
