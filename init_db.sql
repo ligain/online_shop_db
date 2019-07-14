@@ -143,8 +143,8 @@ CREATE TABLE IF NOT EXISTS public.purchase_product (
 	purchase_id int4 NOT NULL,
 	product_id int4 NOT NULL,
 	price_id int4 NOT NULL,
-	amount int4 NOT NULL DEFAULT 0,
-	CHECK (amount >= 0),
+	amount int4 NOT NULL,
+	CHECK (amount > 0),
 	CONSTRAINT fk_purchase_has_product_purchase1 FOREIGN KEY (purchase_id) REFERENCES purchase(id) DEFERRABLE INITIALLY DEFERRED,
 	CONSTRAINT fk_purchase_has_product_product1 FOREIGN KEY (product_id) REFERENCES product(id) DEFERRABLE INITIALLY DEFERRED,
 	CONSTRAINT fk_purchase_product_price1 FOREIGN KEY (price_id) REFERENCES price(id) DEFERRABLE INITIALLY DEFERRED
