@@ -7,6 +7,13 @@ DB schema in the `schema/` directory
 **populate_db.sql** - populates DB with demo data
 **clear_db.sql** - clear all table but not remove them.
 
+To connect to running DB container on the host machine, use following credentials:
+Host: _localhost_
+Port: _5433_
+Database: _online_shop_
+User: _docker_
+Password: _docker_
+
 ## How to set up database
 1) Install docker & docker-compose
 ```
@@ -158,5 +165,21 @@ insert into public.price (product_id, value) values
 commit;
 ```
 
-### Project Goals
+## Backup
+```
+(host) $ docker ps
+CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS              PORTS                    NAMES
+b1051b9e2eaa        postgres:11-alpine   "docker-entrypoint..."   49 seconds ago      Up 48 seconds       0.0.0.0:5433->5432/tcp   online_shop_db_1_87ec5af1972a
+(host) $ docker exec -t b1051b9e2eaa pg_dumpall -c -U docker > dump_online_shop.sql
+```
+
+## Restore
+```
+(host) $ docker ps
+CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS              PORTS                    NAMES
+b1051b9e2eaa        postgres:11-alpine   "docker-entrypoint..."   49 seconds ago      Up 48 seconds       0.0.0.0:5433->5432/tcp   online_shop_db_1_87ec5af1972a
+(host) $ cat dump_online_shop.sql | docker exec -i b1051b9e2eaa psql -U docker -d online_shop
+```
+
+## Project Goals
 The code is written for educational purposes.
