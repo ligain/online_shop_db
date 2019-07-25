@@ -3,15 +3,23 @@
 
 It's training model for online shop.
 DB schema in the `schema/` directory
+
 **init_db.sql** - DDL script to init DB structure
+
 **populate_db.sql** - populates DB with demo data
+
 **clear_db.sql** - clear all table but not remove them.
 
 To connect to running DB container on the host machine, use following credentials:
+
 Host: _localhost_
+
 Port: _5433_
+
 Database: _online_shop_
+
 User: _docker_
+
 Password: _docker_
 
 ## How to set up database
